@@ -3,7 +3,12 @@
 // });
 
 var Slack = require('slack-client');
-// var config = require("./config");
+
+try{
+  var config = require("./config");
+}catch{
+  var config = JSON.parse(process.env.BOT_CONFIG);
+}
 
 var bot = require("./bot")();
 
