@@ -88,7 +88,7 @@ module.exports = function(bot){
     s5.getUser(args[0], function(user){
       for(var i in keys){
         var key = keys[i];
-        if(user[key.replace(/ /gi, "_").toLowerCase()])){
+        if(user[key.replace(/ /gi, "_").toLowerCase()]){
           message += "\n" + key + ": " + user[key.replace(/ /gi, "_").toLowerCase()];
         }
       }
