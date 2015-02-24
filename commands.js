@@ -86,7 +86,7 @@ module.exports = function(bot){
       "Phone"
     ];
     s5.getUser(args[0], function(user){
-      var message = "Here's `" + user + "`"
+      var message = "Here's `" + user.username + "`"
       for(var i in keys){
         var key = keys[i];
         if(user[key.replace(/ /gi, "_").toLowerCase()]){
