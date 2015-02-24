@@ -1,0 +1,21 @@
+<html>
+  <head>
+    <title>s5</title>
+    <script charset="utf-8" src="http://code.jquery.com/jquery.js"></script>
+    <script charset="utf-8">
+      $(document).ready(function(){
+        $('#submit').click(function(){
+          $.ajax({
+            url: "/command",
+            data: {secret: $("#secret").val(), command: $("#command").val()}
+          });
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <input id="secret"><br>
+    <input id="command"><br>
+    <button id="submit">lol</button>
+  </body>
+</html>
