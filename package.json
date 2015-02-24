@@ -1,11 +1,11 @@
 {
   "name": "s4",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "StudentRND Spontaneous Self-Operating System",
   "dependencies": {
-    "codeday-clear": "^1.0.0",
+    "codeday-clear": "^1.0.3",
     "express": "~4.10.8",
-    "s5": "^1.0.1",
+    "s5": "^1.0.3",
     "slack-client": "~1.2.2"
   }
 }
