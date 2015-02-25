@@ -51,23 +51,26 @@ function getRegionalManager(msg, args, channel, username, bot){
 
 module.exports = function(bot, slack){
   bot.addCommand("s4 countdown", "Show a countdown to CodeDay!", function(msg, args, channel, username){
-    // use san diego, they're all the same anyways.
-    console.log("Getting region...");
-
-    var codeDay = new Date();
-
-    codeDay.setTime(1432407600*1000);
-
     var cd = slack.getChannelGroupOrDMByID(countdown.channel);
 
-    cd.send("[countdown_start]");
+    if(args[0] === "stop"){
+      cd.send("Stopping countdown...");
+      clearInterval(countdown.interval);
+      slack._apiCall("chat.delete", {ts: countdown.message, channel: countdown.channel});
+    }else{
+      var codeDay = new Date();
 
-    countdown.interval = setInterval(function(){
-      if(countdown.message){
-        // console.log("Tick " + countdown.message);
-        slack._apiCall("chat.update", {ts: countdown.message, channel: countdown.channel, text: countdown.js(codeDay).toString()});
-      }
-    }, 1000);
+      codeDay.setTime(1432407600*1000);
+
+      cd.send("[countdown_start]");
+
+      countdown.interval = setInterval(function(){
+        if(countdown.message){
+          // console.log("Tick " + countdown.message);
+          slack._apiCall("chat.update", {ts: countdown.message, channel: countdown.channel, text: countdown.js(codeDay).toString()});
+        }
+      }, 1000);
+    }
   });
 
   bot.addCommand("s4 help", "Show this help.", function(msg, args, channel, username){
