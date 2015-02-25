@@ -9,6 +9,13 @@ var cleverbot = new Cleverbot();
 var Clear = require('codeday-clear');
 var S5 = require('s5');
 
+var countdown = {
+  channel: "C03QGP7PW",
+  message: null,
+  interval: null,
+  js: require("./lib/countdown.js")
+};
+
 var clear = new Clear();
 var s5 = new S5();
 
@@ -42,7 +49,27 @@ function getRegionalManager(msg, args, channel, username, bot){
   });
 }
 
-module.exports = function(bot){
+module.exports = function(bot, slack){
+  bot.addCommand("s4 countdown", "Show a countdown to CodeDay!", function(msg, args, channel, username){
+    // use san diego, they're all the same anyways.
+    console.log("Getting region...");
+
+    var codeDay = new Date();
+
+    codeDay.setTime(1432407600*1000);
+
+    var cd = slack.getChannelGroupOrDMByID(countdown.channel);
+
+    cd.send("[countdown_start]");
+
+    countdown.interval = setInterval(function(){
+      if(countdown.message){
+        // console.log("Tick " + countdown.message);
+        slack._apiCall("chat.update", {ts: countdown.message, channel: countdown.channel, text: countdown.js(codeDay).toString()});
+      }
+    }, 1000);
+  });
+
   bot.addCommand("s4 help", "Show this help.", function(msg, args, channel, username){
     var message = "I'm s4, the StudentRND Spontaneous Self-Operating System. Here's what I can do:";
     for(var i in bot.commands){
@@ -55,27 +82,6 @@ module.exports = function(bot){
   bot.addCommand("s4 ready", "Ready.", function(msg, args, channel, username){
     bot.sendMessage("Ready.", channel);
   });
-
-  // bot.addCommand("s4 get", "GET the specified url.", function(msg, args, channel, username){
-  //   // fix slack's shit.
-  //   var slackSpecialRegex = /<(.*?)>/gi;
-  //   var fixedUrl = slackSpecialRegex.exec(args[0])[1].split("|")[0];
-  //   var parsedUrl = url.parse(fixedUrl);
-  //
-  //   http.get({
-  //     host: parsedUrl.host,
-  //     path: parsedUrl.pathname
-  //   }, function(response) {
-  //     var body = '';
-  //     response.on('data', function(d) {
-  //       body += d;
-  //     });
-  //     response.on('end', function() {
-  //       body = body.substr(2000);
-  //       bot.sendMessage("Response (up to 2000 characters):\n```\n" + body + "```", channel);
-  //     });
-  //   });
-  // });
 
   bot.addCommand("s4 whois", "Show s5 information of specified user.", function(msg, args, channel, username){
     if(args[0] === "me"){args[0] = username}
@@ -146,11 +152,21 @@ module.exports = function(bot){
     }
   });
 
-  bot.on('unknownResponse', function(msg, channel, username){
+  bot.on('unknownResponse', function(msg, channel, username, extra){
     if(msg.indexOf("s4") === 0){
       cleverbot.write(msg.substr(3).trim(), channel, function(d){
         bot.sendMessage(d.message.replace(/Cleverbot/gi, "s4"), channel);
       });
     }
+  });
+
+  slack.on('open', function(){
+    slack.ws.on('message', function(message){
+      message = JSON.parse(message);
+      if(message.text && message.text === "[countdown_start]" && message.ok){
+        console.log("Countdown message ts: " + message.ts);
+        countdown.message = message.ts;
+      }
+    });
   });
 };

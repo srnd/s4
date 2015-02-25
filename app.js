@@ -26,10 +26,11 @@ slack.on('open', function() {
 
   setTimeout(function(){
     console.log("Binding bot to Slack...");
-    organizerChannel = slack.getChannelGroupOrDMByID("G03L1QH1Z");
     slackReady = true;
     bot.on('sendMessage', function(message, channel){
-      slack.getChannelGroupOrDMByID(channel).send(message);
+      var m = slack.getChannelGroupOrDMByID(channel).send(message);
+      console.log(m);
+      return m;
     });
     console.log("Bot bound to Slack. Everything is ready.");
   }, 2000);
@@ -48,7 +49,7 @@ slack.on('message', function(message) {
   response = '';
 
   if (type === 'message' && user) {
-    bot.processMessage(text, message.channel, user.name);
+    bot.processMessage(text, message.channel, user.name, {message: message});
   }
 });
 
@@ -58,7 +59,7 @@ bot.on('handleError', function(err, channel, command){
   bot.sendMessage("You broke something!\nError in command `" + command + "`:\n```" + err.stack + "```", channel);
 });
 
-require("./commands")(bot);
+require("./commands")(bot, slack);
 
 var express = require('express')();
 

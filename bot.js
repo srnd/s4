@@ -15,7 +15,7 @@ function Bot(){
     console.log("Unknown responses not set up!");
   }
 
-  this.processMessage = function(message, channel, username){
+  this.processMessage = function(message, channel, username, extra){
     var command = false;
     this.commands.forEach(function(c){
       var regex = RegExp("^" + c.trigger + "\\b");
@@ -24,7 +24,7 @@ function Bot(){
         message = message.substr(c.trigger.length+1);
         var args = message.split(" ");
         try{
-          c.action(message, args, channel, username);
+          c.action(message, args, channel, username, extra);
         }catch(e){
           this.handleError(e, channel, c.trigger);
         }
@@ -36,13 +36,13 @@ function Bot(){
         if(t.trigger.test(message)){
           command = true;
           var matches = new RegExp(t.trigger).exec(message);
-          t.action(message, matches, channel, username);
+          t.action(message, matches, channel, username, extra);
         }
       });
     }
 
     if(!command){
-      this.unknownResponse(message, channel, username);
+      this.unknownResponse(message, channel, username, extra);
     }
   }
 
