@@ -95,7 +95,8 @@ module.exports = function(bot, slack){
       "Phone"
     ];
     s5.getUser(args[0], function(user){
-      var message = "Here's `" + user.username + "`:"
+      var message = "Here's `" + user.username + "`:" +
+                    "\nhttps://s5.studentrnd.org/photo/" + user.username + "_128.jpg";
       for(var i in keys){
         var key = keys[i];
         if(user[key.replace(/ /gi, "_").toLowerCase()]){
