@@ -4,11 +4,7 @@
 
 var Slack = require('slack-client');
 
-try{
-  var config = require("./config");
-}catch(e){
-  var config = JSON.parse(process.env.BOT_CONFIG);
-}
+var config = require('./config.js') || JSON.parse(process.env.BOT_CONFIG);
 
 var bot = require("./bot")();
 

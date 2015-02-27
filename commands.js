@@ -1,4 +1,4 @@
-var config = require('./config.js');
+var config = require('./config.js') || JSON.parse(process.env.BOT_CONFIG);
 
 var url = require("url");
 var http = require("http");
