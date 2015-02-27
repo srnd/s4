@@ -5,7 +5,7 @@
   "dependencies": {
     "codeday-clear": "^1.0.3",
     "express": "~4.10.8",
-    "s5": "^1.0.3",
+    "s5": "^1.0.5",
     "slack-client": "~1.2.2"
   }
 }

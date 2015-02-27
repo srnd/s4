@@ -1,3 +1,5 @@
+var config = require('./config.js');
+
 var url = require("url");
 var http = require("http");
 var https = require("https");
@@ -17,7 +19,7 @@ var countdown = {
 };
 
 var clear = new Clear();
-var s5 = new S5();
+var s5 = new S5(config.S5_API_TOKEN, config.S5_API_SECRET);
 
 function getEvangelist(msg, args, channel, username, bot){
   clear.getRegionByWebName(args.join("").toLowerCase(), function(region){
