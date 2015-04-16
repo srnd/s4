@@ -52,6 +52,8 @@ bot.addCommand("echo", "Echo your text", function(message, args, channel, userna
 });
 ```
 
+![](http://puu.sh/h1x4I/40a041c3f9.png)
+
 ## Triggers
 
 Triggers are used if a command isn't found. Triggers are made of regexes and actions. A trigger's action is called when its regex is matched. Example:
