@@ -1,4 +1,5 @@
-var config = JSON.parse(process.env.BOT_CONFIG) || require('./config.js');
+// TODO inherit config from app.js
+var config = process.env.BOT_CONFIG ? JSON.parse(process.env.BOT_CONFIG) : require('./config.js');
 
 var url = require("url");
 var http = require("http");
@@ -18,13 +19,14 @@ var countdown = {
   js: require("./lib/countdown.js")
 };
 
-var clear = new Clear();
+var clear = new Clear(config.CLEAR_API_TOKEN, config.CLEAR_API_SECRET);
 var s5 = new S5(config.S5_API_TOKEN, config.S5_API_SECRET);
 
 function getEvangelist(msg, args, channel, username, bot){
   clear.getRegionByWebName(args.join("").toLowerCase(), function(region){
-    if(!region){bot.sendMessage("That event doesn't exist!");return}
+    if(!region){bot.sendMessage("That event doesn't exist!", channel);return}
     clear.getEventById(region.current_event.id, function(event){
+      if(!event.evangelist){bot.sendMessage("There isn't an evangelist for this event!", channel);return}
       var message = "Here's the Evangelist for CodeDay " + event.region_name + ":";
       message += "\ns5 username: " + event.evangelist.username;
       message += "\nFirst name: " + event.evangelist.first_name;
@@ -38,7 +40,7 @@ function getEvangelist(msg, args, channel, username, bot){
 
 function getRegionalManager(msg, args, channel, username, bot){
   clear.getRegionByWebName(args.join("").toLowerCase(), function(region){
-    if(!region){bot.sendMessage("That event doesn't exist!");return}
+    if(!region){bot.sendMessage("That event doesn't exist!", channel);return}
     clear.getEventById(region.current_event.id, function(event){
       var message = "Here's the Regional Manager for CodeDay " + event.region_name + ":";
       message += "\ns5 username: " + event.manager.username;
@@ -129,11 +131,11 @@ module.exports = function(bot, slack){
   });
 
   bot.addCommand("s4 regions", "Get regions that can be used for `s4 rm`, `s4 evangelist`, and `s4 registrations`.", function(msg, args, channel, username){
-    clear.getRegionWebNames(function(regions){
+    clear.getRegions(function(regions){
       var message = "Available regions:";
       for(var i in regions){
         var region = regions[i];
-        message += "\n" + region;
+        message += "\n" + region.webname;
       }
       bot.sendMessage(message, channel);
     });
