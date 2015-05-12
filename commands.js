@@ -19,6 +19,8 @@ var countdown = {
   js: require("./lib/countdown.js")
 };
 
+var every = require('every-moment');
+
 var clear = new Clear(config.CLEAR_API_TOKEN, config.CLEAR_API_SECRET);
 var s5 = new S5(config.S5_API_TOKEN, config.S5_API_SECRET);
 
@@ -42,6 +44,7 @@ function getRegionalManager(msg, args, channel, username, bot){
   clear.getRegionByWebName(args.join("").toLowerCase(), function(region){
     if(!region){bot.sendMessage("That event doesn't exist!", channel);return}
     clear.getEventById(region.current_event.id, function(event){
+      if(!event.evangelist){bot.sendMessage("There isn't an RM for this event!", channel);return}
       var message = "Here's the Regional Manager for CodeDay " + event.region_name + ":";
       message += "\ns5 username: " + event.manager.username;
       message += "\nFirst name: " + event.manager.first_name;
@@ -54,6 +57,18 @@ function getRegionalManager(msg, args, channel, username, bot){
 }
 
 module.exports = function(bot, slack){
+  function updateCodeDay(){
+    var codeDay = new Date();
+
+    codeDay.setTime(1432407600*1000);
+
+    slack._apiCall("channels.setTopic", {topic: countdown.js(codeDay, null, countdown.js.DAYS).toString() + " until CodeDay!", channel: "C024H3105"});
+  }
+
+  setTimeout(updateCodeDay, 5000);
+
+  every(1, 'day', updateCodeDay);
+
   bot.addCommand("s4 countdown", "Show a countdown to CodeDay!", function(msg, args, channel, username){
     var cd = slack.getChannelGroupOrDMByID(countdown.channel);
 
@@ -62,6 +77,8 @@ module.exports = function(bot, slack){
       clearInterval(countdown.interval);
       slack._apiCall("chat.delete", {ts: countdown.message, channel: countdown.channel});
     }else{
+      bot.sendMessage("Countdown started in <#codedaycountdown>.", channel);
+
       var codeDay = new Date();
 
       codeDay.setTime(1432407600*1000);
@@ -78,7 +95,7 @@ module.exports = function(bot, slack){
   });
 
   bot.addCommand("s4 help", "Show this help.", function(msg, args, channel, username){
-    var message = "I'm s4, the StudentRND Spontaneous Self-Operating System. Here's what I can do:";
+    var message = "I'm s4, the StudentRND Self-Operating Slack System. Here's what I can do:";
     for(var i in bot.commands){
       var command = bot.commands[i];
       message += "\n" + command.trigger + " - " + command.help;

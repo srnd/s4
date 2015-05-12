@@ -4,6 +4,7 @@
   "description": "StudentRND Self-Operating Slack System",
   "dependencies": {
     "codeday-clear": "^1.0.8",
+    "every-moment": "0.0.1",
     "express": "~4.10.8",
     "s5": "^1.0.5",
     "slack-client": "~1.2.2"
