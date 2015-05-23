@@ -57,17 +57,17 @@ function getRegionalManager(msg, args, channel, username, bot){
 }
 
 module.exports = function(bot, slack){
-  function updateCodeDay(){
-    var codeDay = new Date();
-
-    codeDay.setTime(1432407600*1000);
-
-    slack._apiCall("channels.setTopic", {topic: countdown.js(codeDay, null, countdown.js.DAYS).toString() + " until CodeDay!", channel: "C024H3105"});
-  }
-
-  setTimeout(updateCodeDay, 5000);
-
-  every(1, 'day', updateCodeDay);
+  // function updateCodeDay(){
+  //   var codeDay = new Date();
+  //
+  //   codeDay.setTime(1432407600*1000);
+  //
+  //   slack._apiCall("channels.setTopic", {topic: countdown.js(codeDay, null, countdown.js.DAYS).toString() + " until CodeDay!", channel: "C024H3105"});
+  // }
+  //
+  // setTimeout(updateCodeDay, 5000);
+  //
+  // every(1, 'day', updateCodeDay);
 
   bot.addCommand("s4 countdown", "Show a countdown to CodeDay!", function(msg, args, channel, username){
     var cd = slack.getChannelGroupOrDMByID(countdown.channel);
@@ -83,12 +83,21 @@ module.exports = function(bot, slack){
 
       codeDay.setTime(1432407600*1000);
 
+      var codeDayEast = new Date();
+          codeDayEast.setTime((1432407600*1000)+(3600000*3));
+
+      var codeDayCentral = new Date();
+          codeDayCentral.setTime((1432407600*1000)+(3600000*2));
+
       cd.send("[countdown_start]");
 
       countdown.interval = setInterval(function(){
         if(countdown.message){
           // console.log("Tick " + countdown.message);
-          slack._apiCall("chat.update", {ts: countdown.message, channel: countdown.channel, text: countdown.js(codeDay).toString()});
+          var text = "East: " + countdown.js(codeDayEast).toString() + "\n" +
+                     "West: " + countdown.js(codeDay).toString() + "\n" +
+                     "Central: " + countdown.js(codeDayCentral).toString();
+          slack._apiCall("chat.update", {ts: countdown.message, channel: countdown.channel, text: text});
         }
       }, 1000);
     }
