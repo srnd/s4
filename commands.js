@@ -66,7 +66,7 @@ module.exports = function(bot, slack){
   }
 
   setTimeout(updateCodeDay, 5000);
-  
+
   every(1, 'day', updateCodeDay);
 
   bot.addCommand("s4 countdown", "Show a countdown to CodeDay!", function(msg, args, channel, username){
@@ -89,6 +89,9 @@ module.exports = function(bot, slack){
       var codeDayCentral = new Date();
           codeDayCentral.setTime((1432407600*1000)+(3600000*2));
 
+      var codeDayMountain = new Date();
+          codeDayMountain.setTime((1432407600*1000)+(3600000*1));
+
       cd.send("[countdown_start]");
 
       countdown.interval = setInterval(function(){
@@ -96,7 +99,8 @@ module.exports = function(bot, slack){
           // console.log("Tick " + countdown.message);
           var text = "East: " + countdown.js(codeDayEast).toString() + "\n" +
                      "West: " + countdown.js(codeDay).toString() + "\n" +
-                     "Central: " + countdown.js(codeDayCentral).toString();
+                     "Central: " + countdown.js(codeDayCentral).toString() + "\n" +
+                     "Mountain: " + countdown.js(codeDayMountain).toString();
           slack._apiCall("chat.update", {ts: countdown.message, channel: countdown.channel, text: text});
         }
       }, 1000);
