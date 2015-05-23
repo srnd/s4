@@ -57,17 +57,17 @@ function getRegionalManager(msg, args, channel, username, bot){
 }
 
 module.exports = function(bot, slack){
-  // function updateCodeDay(){
-  //   var codeDay = new Date();
-  //
-  //   codeDay.setTime(1432407600*1000);
-  //
-  //   slack._apiCall("channels.setTopic", {topic: countdown.js(codeDay, null, countdown.js.DAYS).toString() + " until CodeDay!", channel: "C024H3105"});
-  // }
-  //
-  // setTimeout(updateCodeDay, 5000);
-  //
-  // every(1, 'day', updateCodeDay);
+  function updateCodeDay(){
+    var codeDay = new Date();
+
+    codeDay.setTime(1432407600*1000);
+
+    slack._apiCall("channels.setTopic", {topic: countdown.js(codeDay, null, countdown.js.DAYS).toString() + " until CodeDay!", channel: "C024H3105"});
+  }
+
+  setTimeout(updateCodeDay, 5000);
+  
+  every(1, 'day', updateCodeDay);
 
   bot.addCommand("s4 countdown", "Show a countdown to CodeDay!", function(msg, args, channel, username){
     var cd = slack.getChannelGroupOrDMByID(countdown.channel);
