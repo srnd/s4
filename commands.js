@@ -1,16 +1,20 @@
 // TODO inherit config from app.js
 var config = process.env.BOT_CONFIG ? JSON.parse(process.env.BOT_CONFIG) : require('./config.js');
 
-var url = require("url");
-var http = require("http");
-var https = require("https");
-var querystring = require("querystring");
+var blockspring = require('blockspring');
 
-var Cleverbot = require("./cleverbot");
-var cleverbot = new Cleverbot();
+var url = require("url"),
+    http = require("http"),
+    https = require("https"),
+    querystring = require("querystring");
 
-var Clear = require('codeday-clear');
-var S5 = require('s5');
+var Cleverbot = require("./cleverbot"),
+    cleverbot = new Cleverbot();
+
+var Clear = require('codeday-clear'),
+    S5 = require('s5'),
+    clear = new Clear(config.CLEAR_API_TOKEN, config.CLEAR_API_SECRET),
+    s5 = new S5(config.S5_API_TOKEN, config.S5_API_SECRET);
 
 var countdown = {
   channel: "C03QGP7PW",
@@ -20,9 +24,6 @@ var countdown = {
 };
 
 var every = require('every-moment');
-
-var clear = new Clear(config.CLEAR_API_TOKEN, config.CLEAR_API_SECRET);
-var s5 = new S5(config.S5_API_TOKEN, config.S5_API_SECRET);
 
 function getEvangelist(msg, args, channel, username, bot){
   clear.getRegionByWebName(args.join("").toLowerCase(), function(region){
@@ -57,17 +58,17 @@ function getRegionalManager(msg, args, channel, username, bot){
 }
 
 module.exports = function(bot, slack){
-  function updateCodeDay(){
-    var codeDay = new Date();
+  // function updateCodeDay(){
+  //   var codeDay = new Date();
+  //
+  //   codeDay.setTime(1432407600*1000);
+  //
+  //   slack._apiCall("channels.setTopic", {topic: countdown.js(codeDay, null, countdown.js.DAYS).toString() + " until CodeDay!", channel: "C024H3105"});
+  // }
 
-    codeDay.setTime(1432407600*1000);
+  // setTimeout(updateCodeDay, 5000);
 
-    slack._apiCall("channels.setTopic", {topic: countdown.js(codeDay, null, countdown.js.DAYS).toString() + " until CodeDay!", channel: "C024H3105"});
-  }
-
-  setTimeout(updateCodeDay, 5000);
-
-  every(1, 'day', updateCodeDay);
+  // every(1, 'day', updateCodeDay);
 
   bot.addCommand("s4 countdown", "Show a countdown to CodeDay!", function(msg, args, channel, username){
     var cd = slack.getChannelGroupOrDMByID(countdown.channel);
@@ -168,6 +169,12 @@ module.exports = function(bot, slack){
         message += "\n" + region.webname;
       }
       bot.sendMessage(message, channel);
+    });
+  });
+
+  bot.addCommand("s4 lookup", "Look up a person by their first name, last name, and email. Format: [first] [last] [email]", function(msg, args, channel, username){
+    blockspring.runParsed("b5bb470b4082254bf538a7bacac3f0cb", { "first_name": args[0], "last_name": args[1], "domain": args[3], "RAPPORTIVE_TOKEN ": null }, { api_key: "br_2046_7608f4f217ab050f599d945f7199f98da91d482e"}, function(res) {
+     bot.sendMessage(JSON.stringify(res));
     });
   });
 
