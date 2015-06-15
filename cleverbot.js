@@ -13,7 +13,8 @@ Cleverbot.default_params = {
   'fno'              : '0', 'prevref'    : ''     , 'emotionaloutput' : '',
   'emotionalhistory' : '' , 'asbotname'  : ''     , 'ttsvoice' : '',
   'typing'           : '' , 'lineref'    : ''     , 'sub' : 'Say',
-  'islearning'       : '1', 'cleanslate' : 'false',
+  'islearning'       : '1', 'cleanslate' : 'false', 'cb_settings_language' : 'en',
+  'cb_settings_scripting' : 'no'
 };
 
 Cleverbot.parserKeys = [
@@ -45,7 +46,7 @@ Cleverbot.encodeParams = function(a1){
 };
 
 Cleverbot.prototype = {
-  write : function(message, session, callback){
+  write: function(message, session, callback){
     var clever = this;
     body = this.params;
     body.stimulus = message;
@@ -65,7 +66,9 @@ Cleverbot.prototype = {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Content-Length': Cleverbot.encodeParams(body).length,
-        'Cache-Control': 'no-cache'
+        'Cache-Control': 'no-cache',
+        'Cookie': '_cbsid=-1; XVIS=TEI939AFFIAGAYQZ',
+        'User-Agent': 'Mozilla/5.0 (X11; Linux i686 (x86_64)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.81 Safari/537.36'
       }
     };
     var req = http.request(options, function(res) {
@@ -76,7 +79,8 @@ Cleverbot.prototype = {
         for(var i = 0, iLen = chunk_data.length;i<iLen;i++){
           clever.params[Cleverbot.parserKeys[i]] = responseHash[Cleverbot.parserKeys[i]] = chunk_data[i];
         }
-        if (res.statusCode >= 300) responseHash.message = 'Error: ' + res.statusCode;
+        // if (res.statusCode >= 300) responseHash.message = 'Error: ' + res.statusCode;
+        console.log(responseHash);
         if(!clever.sessions[session]){
           // console.log("New session for channel " + session + ": " + responseHash.sessionid);
           clever.sessions[session] = responseHash.sessionid;
