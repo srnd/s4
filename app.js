@@ -92,7 +92,7 @@ express.get('/command', function(req, res){
 express.post('/email', function(req, res){
   console.log(req);
   if(slackReady){
-    var email = JSON.parse(req.body.mandrill_events)[0];
+    var email = JSON.parse(req.body.mandrill_events)[0].msg;
     bot.sendMessage("Email activity!\nEmail sent from " + email.sender + " to " + email.email + " with subject " + email.subject + ".", "G07FNVB5F");
   }
   res.send("kk");
