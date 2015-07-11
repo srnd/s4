@@ -8,6 +8,7 @@
     "express": "~4.10.8",
     "s5": "^1.0.5",
     "slack-client": "~1.2.2",
-    "blockspring": "0.0.6"
+    "blockspring": "0.0.6",
+    "body-parser": "~1.13.2"
   }
 }

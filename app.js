@@ -58,6 +58,12 @@ bot.on('handleError', function(err, channel, command){
 require("./commands")(bot, slack);
 
 var express = require('express')();
+var bodyParser = require('body-parser');
+
+express.use(bodyParser.json());
+express.use(bodyParser.urlencoded({
+  extended: true
+}));
 
 express.get('/', function(req, res){
   res.sendfile('index.html');
