@@ -84,11 +84,11 @@ express.get('/command', function(req, res){
 });
 
 express.post('/email', function(req, res){
+  console.log(req);
   if(slackReady){
     bot.sendMessage("Email activity!", "G07FNVB5F");
-    console.log(req);
   }
-  res.send('k.');
+  res.send("kk");
 });
 
 var server = express.listen(process.env.PORT || 1337);
