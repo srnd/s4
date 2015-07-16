@@ -217,8 +217,8 @@ module.exports = function(bot, slack){
                 bot.sendMessage("Alright, I'll post it. Hold on...", channel);
                 og(url, function(err, metadata){
                   var body = url + "\n\n";
-                  if(metadata.title) body += "# " + metadata.title + "\n";
-                  if(metadata.description) body += metadata.description + "\n\n";
+                  if(metadata && metadata.title) body += "# " + metadata.title + "\n";
+                  if(metadata && metadata.description) body += metadata.description + "\n\n";
 
                   body += "_(posted automatically via [s4](https://git.io/s4); @" + username + " should add some details!)_";
 
