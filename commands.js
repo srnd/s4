@@ -215,9 +215,7 @@ module.exports = function(bot, slack){
                   if(metadata.title) body += "# " + metadata.title + "\n\n";
                   if(metadata.description) body += metadata.description + "\n\n";
 
-                  if(!metadata.title && !metadata.description) body += "@" + username + " should add some details for this URL!\n\n";
-
-                  body += "_(posted automatically via [s4](https://git.io))_";
+                  body += "_(posted automatically via [s4](https://git.io/s4); @" + username + " should add some details!)_";
 
                   discourse.post("/posts", {api_username: username, title: title, raw: body}, function(err, data){
                     if(typeof(data) === "string") data = JSON.parse(data);
