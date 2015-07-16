@@ -3,12 +3,14 @@
   "version": "1.0.2",
   "description": "StudentRND Self-Operating Slack System",
   "dependencies": {
+    "blockspring": "0.0.6",
+    "body-parser": "~1.13.2",
     "codeday-clear": "^1.0.8",
+    "discourse-api": "^1.0.0",
     "every-moment": "0.0.1",
     "express": "~4.10.8",
+    "open-graph": "^0.1.5",
     "s5": "^1.0.5",
-    "slack-client": "~1.2.2",
-    "blockspring": "0.0.6",
-    "body-parser": "~1.13.2"
+    "slack-client": "~1.2.2"
   }
 }

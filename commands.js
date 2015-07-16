@@ -6,7 +6,10 @@ var blockspring = require('blockspring');
 var url = require("url"),
     http = require("http"),
     https = require("https"),
-    querystring = require("querystring");
+    querystring = require("querystring"),
+    Discourse = require("discourse-api"),
+    discourse = new Discourse(config.DISCOURSE_URL, config.DISCOURSE_API_KEY, "system"),
+    og = require("open-graph");
 
 var Cleverbot = require("./cleverbot"),
     cleverbot = new Cleverbot();
@@ -172,9 +175,73 @@ module.exports = function(bot, slack){
     });
   });
 
-  bot.addCommand("s4 lookup", "Look up a person by their first name, last name, and email. Format: [first] [last] [email]", function(msg, args, channel, username){
+  bot.addCommand("s4 lookup", "Look up a person by their first name, last name, and email. Format: `[first] [last] [email]`", function(msg, args, channel, username){
     blockspring.runParsed("b5bb470b4082254bf538a7bacac3f0cb", { "first_name": args[0], "last_name": args[1], "domain": args[3], "RAPPORTIVE_TOKEN ": null }, { api_key: "br_2046_7608f4f217ab050f599d945f7199f98da91d482e"}, function(res) {
      bot.sendMessage(JSON.stringify(res));
+    });
+  });
+
+  bot.addCommand("s4 post", "Post to the StudentRND Community. Format: `[title]: [url] in category [category name]`", function(msg, args, channel, username){
+    var urlRegex = /[-a-zA-Z0-9@:%_\+.~#?&\/\/=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)?/gi;
+
+    discourse.get("/users/" + username + ".json", {}, function(err, data){
+      if(typeof(data) === "string") data = JSON.parse(data);
+      if(data.error_type && data.error_type === "not_found"){
+        bot.sendMessage("You aren't a member of the Community!", channel);
+      }else{
+        var content = msg.split("in category")[0].trim(),
+            wantedCategory = msg.split("in category")[1].trim().toLowerCase(),
+            url = content.match(urlRegex)[0],
+            title = content.replace(urlRegex, "").replace(":", "").replace("<", "").replace(">", "").trim();
+
+        bot.sendMessage("Looking up category...", channel);
+        discourse.get("/categories.json", {}, function(err, data){
+          if(typeof(data) === "string") data = JSON.parse(data);
+          var postCategory;
+
+          data.category_list.categories.forEach(function(category){
+            if(category.name.toLowerCase().indexOf(wantedCategory) !== -1){
+              postCategory = category;
+            }
+          });
+
+          if(postCategory){
+            bot.sendMessage("I found a category named \"" + postCategory.name + "\". Is this what you wanted?", channel);
+            bot.setIntent(username, channel, function(message, channel, username){
+              if(message.toLowerCase().indexOf("y") === 0){
+                bot.sendMessage("Alright, I'll post it. Hold on...", channel);
+                og(url, function(err, metadata){
+                  var body = url + "\n\n";
+                  if(metadata.title) body += "# " + metadata.title + "\n\n";
+                  if(metadata.description) body += metadata.description + "\n\n";
+
+                  if(!metadata.title && !metadata.description) body += "@" + username + " should add some details for this URL!\n\n";
+
+                  body += "_(posted automatically via [s4](https://git.io))_";
+
+                  discourse.post("/posts", {api_username: username, title: title, raw: body}, function(err, data){
+                    if(typeof(data) === "string") data = JSON.parse(data);
+                    if(data.topic_id){
+                      discourse.put("/t/" + data.topic_id, {category_id: postCategory.id}, function(err){
+                        bot.sendMessage("Done! Here's your post: " + config.DISCOURSE_URL + "/t/" + data.topic_id, channel);
+                      });
+                    }
+                  });
+                });
+                return true;
+              }else if(message.toLowerCase().indexOf("n") === 0){
+                bot.sendMessage("Okay, I won't post it.", channel);
+                return true;
+              }else{
+                bot.sendMessage("Sorry, I didn't understand you. Please say yes or no.", channel);
+                return false;
+              }
+            });
+          }else{
+            bot.sendMessage("Sorry, I couldn't find that category.", channel);
+          }
+        });
+      }
     });
   });
 

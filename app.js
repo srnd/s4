@@ -37,7 +37,6 @@ slack.on('error', function(error) {
 });
 
 slack.on('message', function(message) {
-
   var type = message.type,
   user = slack.getUserByID(message.user),
   time = message.ts,

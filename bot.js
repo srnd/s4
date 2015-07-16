@@ -3,6 +3,8 @@ function Bot(){
 
   this.triggers = [];
 
+  this.intents = {};
+
   this.sendMessage = function(){
     console.warn("Message sending not set up!");
   }
@@ -15,34 +17,49 @@ function Bot(){
     console.log("Unknown responses not set up!");
   }
 
-  this.processMessage = function(message, channel, username, extra){
-    var command = false;
-    this.commands.forEach(function(c){
-      var regex = RegExp("^" + c.trigger + "\\b");
-      if(regex.test(message)){
-        command = true;
-        message = message.substr(c.trigger.length+1);
-        var args = message.split(" ");
-        try{
-          c.action(message, args, channel, username, extra);
-        }catch(e){
-          this.handleError(e, channel, c.trigger);
-        }
-      }
-    });
+  this.setIntent = function(username, channel, callback){
+    this.intents[username] = {channel: channel, callback: callback};
+  };
 
-    if(!command){
-      this.triggers.forEach(function(t){
-        if(t.trigger.test(message)){
+  this.processMessage = function(message, channel, username, extra){
+    // intents are prioritized
+    if(this.intents[username] && this.intents[username].channel === channel){
+      var intent = this.intents[username];
+
+      // callback success
+      if(intent.callback(message, channel, username) === true){
+        this.intents[username] = undefined;
+      }
+    }else{
+      var command = false;
+
+      this.commands.forEach(function(c){
+        var regex = RegExp("^" + c.trigger + "\\b");
+        if(regex.test(message)){
           command = true;
-          var matches = new RegExp(t.trigger).exec(message);
-          t.action(message, matches, channel, username, extra);
+          message = message.substr(c.trigger.length+1);
+          var args = message.split(" ");
+          try{
+            c.action(message, args, channel, username, extra);
+          }catch(e){
+            this.handleError(e, channel, c.trigger);
+          }
         }
       });
-    }
 
-    if(!command){
-      this.unknownResponse(message, channel, username, extra);
+      if(!command){
+        this.triggers.forEach(function(t){
+          if(t.trigger.test(message)){
+            command = true;
+            var matches = new RegExp(t.trigger).exec(message);
+            t.action(message, matches, channel, username, extra);
+          }
+        });
+      }
+
+      if(!command){
+        this.unknownResponse(message, channel, username, extra);
+      }
     }
   }
 
