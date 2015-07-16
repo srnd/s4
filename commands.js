@@ -189,10 +189,15 @@ module.exports = function(bot, slack){
       if(data.error_type && data.error_type === "not_found"){
         bot.sendMessage("You aren't a member of the Community!", channel);
       }else{
-        var content = msg.split("in category")[0].trim(),
-            wantedCategory = msg.split("in category")[1].trim().toLowerCase(),
-            url = content.match(urlRegex)[0],
-            title = content.replace(urlRegex, "").replace(":", "").replace("<", "").replace(">", "").trim();
+        try{
+          var content = msg.split("in category")[0].trim(),
+              wantedCategory = msg.split("in category")[1].trim().toLowerCase(),
+              url = content.match(urlRegex)[0],
+              title = content.replace(urlRegex, "").replace(":", "").replace("<", "").replace(">", "").trim();
+        }catch(e){
+          bot.sendMessage("I couldn't understand you, please use this command like `[title]: [url] in category [category name]`.", channel);
+          return;
+        }
 
         bot.sendMessage("Looking up category...", channel);
         discourse.get("/categories.json", {}, function(err, data){
